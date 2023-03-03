@@ -82,19 +82,19 @@ Moving to \textbf{crypto cards}, existing examples are simply traditional banks 
 
 \newpage
 
-\section{Core Concepts}\label{core}
+\section{Architecture}
 This section summarises the core features, design choices, technical challenges and possible ways around.
 
 \subsection{Smart Contracts}
 The on-chain part is made of the following elements.
 
-\subsubsection{Accounts}\label{accountsSub}
+\subsubsection{Accounts}
 Every user will have a smart contract wallet acting as an \textit{Account}, linked to their identity via a zk-KYC system. Through this Account, users will be able to interact with Absurd core features either in a permissionless or permissioned way. The former requires them to have a web3 wallet and pay gas fees directly, in the latter account abstraction will totally hide any web3 jargon and subsidise seed phrase management and gas costs on behalf of the user.
 Doing so, Absurd can target both web3 native users and newcomers, without having the typical blockers of DeFi (i.e. wallets, seed phrase, gas costs, transaction monitoring, error management, etc.).
 
 A user can have one and only one Account per identity. Via zero knowledge proofs we can implement mandatory SCA (Secure Customer Authentication) requiring them to submit an OTP (One Time Password) for critical actions like sending transfers or swapping money above a certain value.
 
-\subsubsection{Fiat tokens}\label{coinsSub}
+\subsubsection{Fiat tokens}
 As the upcoming EU MiCa regulation states, on-chain tokens can legally represent fiat deposits as long as the custodian allows for prompt slippage-free redemption of these tokens 1:1 with fiat reserves and those are not invested in risky assets.
 
 Absurd uses ERC777 tokens linked to held deposits for each supported currency.
@@ -110,27 +110,61 @@ ERC777 hooks allow for arbitrary logic implementation; examples are:
 
 These tokens are transferrable to whitelisted customers only, but can be swapped for DeFi stablecoins internally and then bridged to any major chain. See \ref{bridgeSub} for more.
 
-\subsubsection{Governance}\label{daoSub}
+\subsubsection{Governance}
 Governance will consist of two parts, a \textbf{DAO} made of all customers who can express their preferences or proposals via quadratic voting and the \textbf{Core Committee} made of shareholders who have veto rights over the DAO, if proposals are not legally acceptable.
 DAO voting will be done via soulbound tokens while the Core Committee uses legally-tokenised shares under the Swiss DLT law, that can be sold to other accredited investors on the open market.
 
-\subsubsection{Currency swaps via AMM}\label{ammSub}
+\subsubsection{Currency swaps via AMM}
 By leveraging automated market makers (AMM) technology, Absurd will support on-chain foreign currency swaps with minimal slippage and best rates. Any user can actually earn by being a liquidity provider, deepening liquidity reserves on the AMM.
 
 \subsubsection{DeFi bridge}\label{bridgeSub}
 Using the aforementioned AMMs, customers can swap their ERC777 tokens for any of the majour stablecoins like USDC, EUROC, DAI and transfer them to their wallets (\textit{EOA - Externally Owned Accounts}) via LayerZero bridging technology.
 
-\subsubsection{Crypto deposits and withdrawal}\label{cryptoDepositsSub}
+\subsubsection{Crypto deposits and withdrawal}
 The DeFi bridge also accounts for crypto interoperability. Users can send inbound transfers, who are subject to an automated AML and KYC check to verify the source of funds, and charge their accounts. Or vice versa, swap their fiat tokens for any supported cryptocurrency and send it out to their EOA.
 
 \subsection{Backend}
 The off-chain part consists of several microservices running on AWS and designated to the following tasks.
 
-\subsubsection{Transfer processor}\label{transferProcessorSub}
-This piece is responsible for idempotent processing of SEPA or SWIFT transactions, thus creating the XML object msg to be sent to the clearing bank in the case of an outgoing transfer, or to parse the incoming XML in the case of an incoming transfer.
+\subsubsection{API Gateway}
+A REST API facade to all microservices, accessible from other web2 apps.
+This part is also mandatory for PSD2 compliance, so that other fintech companies can access our data upon user authorisation.
 
-\subsubsection{Auditing}\label{auditingSub}
+\subsubsection{Transfer processor}
+This piece is responsible for idempotent processing of SEPA or SWIFT transactions, thus creating the XML object msg to be sent to the clearing bank in the case of an outgoing transfer, or to parse the incoming XML in the case of an incoming transfer. Same for card scheme payments.
+
+\subsubsection{Machine Learning Cluster}
+Following the analysis of variables extracted from the user account like
+\begin{itemize}
+\item{} Stable and Variable Income
+\item{} Necessary and superfluous expenses
+\item{} Mortgages and loans instalments
+\item{} Cash 
+\item{} Credit card debt
+\item{} Liquidity Tension
+\item{} Risk of Fraud
+\end{itemize}
+
+this service is able to create custom recommendations for investments, savings and financial optimisation according to the client's financial capabilities and risk tolerance.
+
+\subsubsection{Data Lake}
+A NoSQL database containing misc data to run the AI model on.
+
+\subsubsection{Auditing}
 A watcher process listens to events generated by the Absurd smart contracts and logs any event on a database that is sent to the regulators in case of (suspected) fraud, money laundering or any other criminal activity. The granularity of events accounts for a non-public ledger, thus preserving GDPR as smart contracts internal storage slots are not publicly accessible.
 
-\end{document}
+\newpage
 
+\section{Peripheral}
+This section describes other added features that will be carried out by Absurd finance.
+
+\subsection{PSD2 connection}
+Via PSD2 integrations it is possible to connect to the user other bank account and issue transfers to their Absurd account or simply gather their banking data to offer tailored services.
+
+\subsection{Robo-investments}
+As the checking accounts actually live on both the on and off-chain world, it is very easy to provide ad-hoc investment opportunities, in DeFi or TradFi.
+
+\subsection{Loans}
+Working upon the very successful yet legally uncertain examples of Maple and Clearpool, Absurd can open credit lines to its users offering other users to invest and be lenders, while performing due diligence on the borrower and taking proper action in case of credit default.
+
+\end{document}
